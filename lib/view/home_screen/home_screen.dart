@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:practising_wrk/model/my_model.dart';
 import 'package:practising_wrk/utils/color_constant/color_constant.dart';
 import 'package:practising_wrk/view/home_screen/home_screen_widget.dart';
 
@@ -10,6 +12,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  var box = Hive.box<MyModel>("MyBox");
+  var keyList = [];
+  @override
+  void initState() {
+    keyList = box.keys.toList();
+    super.initState();
+  }
+
   TextEditingController nameController = TextEditingController();
   List<String> myList = [];
   @override
@@ -21,11 +31,11 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
       ),
       body: ListView.builder(
-        itemCount: myList.length,
+        itemCount: keyList.length,
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.all(16),
           child: HomeScreenWidget(
-            name: nameController.text,
+            name: box.get(keyList[index])!.name,
           ),
         ),
       ),
@@ -77,8 +87,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     backgroundColor: MaterialStatePropertyAll(
                                         ColorConstant.purple)),
                                 onPressed: () {
-                                  myList.add(nameController.text);
+                                  box.add(MyModel(name: nameController.text));
+                                  keyList = box.keys.toList();
+
                                   setState(() {});
+                                  nameController.clear();
                                   Navigator.pop(context);
                                 },
                                 child: Text("save")),

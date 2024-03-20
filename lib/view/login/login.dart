@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../utils/color_constant/color_constant.dart';
 import '../home_screen/home_screen.dart';
@@ -11,6 +12,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passController = TextEditingController();
   bool obscureText = true;
   @override
   Widget build(BuildContext context) {
@@ -19,10 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
         padding: const EdgeInsets.all(30),
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 150,
-              ),
               Text(
                 "Login",
                 style: TextStyle(
@@ -34,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 50,
               ),
               TextFormField(
+                controller: emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                     fillColor: ColorConstant.defPurple.withOpacity(0.3),
@@ -56,7 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 30,
               ),
               TextFormField(
-                obscureText: true,
+                controller: obscureText ? null : passController,
+                obscureText: obscureText,
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                     fillColor: ColorConstant.defPurple.withOpacity(0.3),
@@ -91,12 +94,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: ButtonStyle(
                       backgroundColor:
                           MaterialStatePropertyAll(ColorConstant.purple)),
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomeScreen(),
-                        ));
+                  onPressed: () async {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    final String Regemail = prefs.getString('email').toString();
+                    final String Regpass = prefs.getString('pass').toString();
+                    if (emailController.text.trim() == Regemail &&
+                        passController.text.trim() == Regpass) {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomeScreen(),
+                          ));
+                      print(
+                          "REISTERED EMAIL AND PASS ARE : ${await prefs.getString('email')} , ${await prefs.getString('pass')}");
+                    }
                   },
                   child: Text("Login"))
             ],
